@@ -1,0 +1,9 @@
+{
+  "name": "AKC Genesis Library Pass",
+  "description": "創世貢獻者限定 NFT",
+ "image": "ipfs://bafkreics5t46icjivbt4hpe6da2syfuntmd7f5u6ufaqk7g2ottttkjisy",
+  "attributes": [
+    { "trait_type": "Type", "value": "Soulbound" },
+    { "trait_type": "Rank", "value": "Genesis" }
+  ]
+}

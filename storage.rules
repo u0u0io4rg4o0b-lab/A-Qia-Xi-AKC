@@ -1,0 +1,9 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /courses/{allPaths=**} {
+      allow read: if true;  // ✅ 開放任何人讀影片
+      allow write: if request.auth != null; // ✅ 登入才能上傳
+    }
+  }
+}

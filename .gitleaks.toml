@@ -1,0 +1,9 @@
+# .gitleaks.toml（放專案根目錄）
+title = "akc-local-allow"
+
+[allowlist]
+description = "Allow Firebase web API key in client file only"
+paths = [
+  '''^public/JS/firebase\.js$'''
+]
+rules = ["gcp-api-key"]

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="akc-auth" content="strict" />
+
+    <!-- 建議：所有頁面 <head> 最前面都加這行 -->
+    <script src="JS/config.js"></script>
+    <meta charset="UTF-8" />
+    <title>鑄造圖書證 NFT</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="JS/checkAccess.js"></script>
+    <!-- 確保先載入 -->
+    <script src="JS/wallet.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 flex flex-col items-center justify-center h-screen">
+    <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md text-center">
+      <h1 class="text-2xl font-bold mb-4">🎓 鑄造你的圖書證 NFT</h1>
+      <p class="mb-6 text-gray-600">這是你進入阿卡西圖書館的身份識別證。</p>
+      <button
+        id="mintButton"
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        點擊鑄造
+      </button>
+      <p id="status" class="mt-4 text-sm text-gray-500"></p>
+    </div>
+
+    <script>
+      document
+        .getElementById('mintButton')
+        .addEventListener('click', async () => {
+          const provider = new ethers.providers.Web3Provider(
+            window.ethereum,
+            'any'
+          );
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+          const signer = provider.getSigner();
+          const network = await provider.getNetwork();
+          console.log('目前網路為', network.name);
+          const EXPECTED = window.AKC_CONFIG.CHAIN_ID;
+          if (network.chainId !== EXPECTED) {
+            document.getElementById(
+              'status'
+            ).textContent = `⚠️ 請切到正確網路（當前 ${network.chainId}）`;
+            return;
+          }
+          if (!window.AKC_CONFIG?.CONTRACT || !window.AKC_CONFIG?.CHAIN_ID) {
+            document.getElementById('status').textContent =
+              '⚠️ 設定未載入，請重新整理（config.js）。';
+            return;
+          }
+
+          const contract = new ethers.Contract(
+            window.AKC_CONFIG.CONTRACT,
+            ['function mintSelf() public'],
+            signer
+          );
+
+          try {
+            const btn = document.getElementById('mintButton');
+            btn.disabled = true;
+            btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+            document.getElementById('status').textContent =
+              '⏳ 正在發送交易中...';
+            const tx = await contract.mintSelf();
+            await tx.wait();
+            document.getElementById('status').textContent =
+              '✅ 鑄造成功！即將跳轉...';
+            setTimeout(() => {
+              window.location.href = 'profile.html';
+            }, 2000);
+          } catch (err) {
+            console.error(err);
+            document.getElementById('status').textContent =
+              '❌ 鑄造失敗，請稍後重試。';
+            const m = String(err?.message || err);
+            const nice = /already minted|balanceOf/.test(m)
+              ? '❌ 你已經擁有 1 枚，無法再次鑄造'
+              : /user rejected|denied|rejected/.test(m)
+              ? '❌ 你取消了交易'
+              : '❌ 鑄造失敗，請稍後重試';
+            document.getElementById('status').textContent = nice;
+          } finally {
+            const btn = document.getElementById('mintButton');
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "akashic-library-test",
+    "akashic": "akashic-library-test",
+    "AKC": "akashic-library-test"
+  },
+  "targets": {},
+  "etags": {}
+}

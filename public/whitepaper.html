@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <!-- 頁首按照阿卡西平台規範載入全域設定與依賴 -->
+  <script src="JS/config.js"></script>
+  <meta charset="UTF-8">
+  <title>阿卡西圖書館白皮書（封測版）</title>
+  <!-- Tailwind CDN 用於簡易排版，正式版可替換為本地編譯檔 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 白皮書為開放頁面，不要求登入即可瀏覽 -->
+  <meta name="akc-auth" content="open">
+
+  <meta name="akc-login-redirect" content="profile" />
+
+  <!-- Firebase 與相關庫，供未來功能擴充（此頁面目前僅靜態顯示） -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+</head>
+
+<body class="bg-white text-gray-800 font-sans leading-relaxed">
+  <!-- 導覽列占位元素，由 navbar-loader.js 動態填入 -->
+  <div id="navbar-placeholder"></div>
+
+
+<!-- 白皮書頁專用：登入後導向個人頁（page hook） -->
+<script>
+  (function () {
+    // 只在 whitepaper 這一頁生效
+    window._akcMaybeRedirectAfterLogin = function (addr) {
+      if (!addr) return;
+      if (location.pathname.endsWith('profile.html')) return;
+      location.href = 'profile.html?uid=' + encodeURIComponent(addr);
+    };
+  })();
+</script>
+
+
+  <script src="JS/navbar-loader.js"></script>
+  <script src="JS/init-page.js"></script>
+
+   <script src="JS/siwe.js?v=20250911b" defer></script>
+  <script src="JS/wallet.js"></script>
+
+  <main class="max-w-5xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-8 text-center">📖 阿卡西圖書館｜白皮書（封測版）</h1>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">📌 阿卡西圖書館是什麼？</h2>
+      <p class="text-gray-700 whitespace-pre-line">
+        阿卡西圖書館（Akashic Library）：去中心化的學習與協作網路。
+用 SBT（不可轉讓圖書證）+ 協作分潤 + 子DAO 本地化，把「教育者—協作者—學習者」的價值循環寫進合約，讓貢獻者與學習者都能得到回報。
+對學習者：學完即得 SBT 成就與可驗證憑證；做作業、寫回饋也能挖礦與換課。低價課、可驗證履歷、可參與治理。
+對教育者：課程可鑄成版權 NFT；協作者幫你翻譯/優化/推廣，分潤自動結算，擴張到多語市場。
+對協作者：翻譯、教案編輯、設計、審核、運營都有任務市場；聲望＋分潤雙軌回報，長期可升級治理權重。
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🌍 願景與使命</h2>
+      <p class="text-gray-700 whitespace-pre-line">
+        我們的願景是打造一座由全球社群共同治理的世界級知識圖書館，讓教育不再受限於中央化機構；使命則是透過去中心化自治組織（DAO）架構，串聯教育者、學習者與協作者，建立透明、公平且永續的知識共享生態。2025 年 10 月的開啟，是開啟這項願景的第一步：邀請早期參與者體驗平台、提交回饋並共同規劃未來功能走向，藉此凝聚社群共識。
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🧠 核心功能設計</h2>
+      <p class="text-gray-700 whitespace-pre-line">
+       本地化協作「子DAO」網路：每門課都能衍生出翻譯、教案優化、在地推廣等子任務；越多人協作，課越強、受眾越廣，形成網絡效應（內容與人雙重網效）。
+可驗證身份與貢獻：SBT＋EAS（以太坊證明/背書）/Gitcoin Passport 建立聲望層，抑制女巫攻擊與假帳號灌水。
+標準治理與安全棧：Snapshot（無 Gas 投票）、oSnap/SafeSnap（鏈下投票→鏈上自動執行）、Safe 多簽（DAO 金庫業界標準）。
+可持續獎勵設計：學 Optimism 的 RetroPGF 精神——先做出影響、再回溯獎勵，把經費投到真正有成效的教育公共品。
+
+<a href="missions.html" class="text-blue-600 underline">任務列表</a> 參與這些活動。
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">💡 經濟循環與分潤機制</h2>
+      <p class="text-gray-700 whitespace-pre-line">
+        不只「把課上鏈」：我們把課程生命週期（創建、翻譯、本地化、審核、推廣）拆成任務市場，每個環節都有分潤與聲望，而不是單點賣課。
+不只「發行 NFT」：SBT 做身份/成就（不可轉讓），內容 NFT 做權利/收益（可分潤）；兩者互補、避免投機。
+可驗證治理 + 自動執行：投票—>自動執行的整套標準工具鏈，降低人治風險與內耗，提高教育機構採用意願。
+教育者：課程銷售＋授權分潤＋社群回饋（Retro-style 獎勵）。
+協作者：任務市場（翻譯/設計/技術/審核/運營）＋長期聲望加權分潤。
+學習者：學習挖礦（作業/測驗/回饋）→ 积分可兌課、投票與成就 SBT。
+平台：只收小額手續費（以量制勝）；治理資金由金庫與回溯獎勵池支應。
+（內容代幣化與共享分潤的可行性，已被 Open Campus 類型專案驗證。）
+
+       
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🔐 治理與安全</h2>
+      <p class="text-gray-700 whitespace-pre-line">
+        投票：Snapshot（免Gas） → oSnap/SafeSnap 模組 → Safe 多簽自動執行鏈上交易。
+身份與女巫防護：SBT + EAS（可核驗背書）+ Gitcoin Passport 分數門檻。
+錢包與上手：嵌入式錢包（Email / 社群登入 / Passkey），降低新手門檻。
+（以上均為行業主流與成熟方案，便於教育機構採用與審核。）
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🚀 2025–2028 路線圖與封測目標</h2>
+      <p class="text-gray-700 whitespace-pre-line">
+        路線圖（2025–2027）
+
+2025 Q3（封測）：SBT 鑄造、任務清單、課程上傳/觀看、基礎分潤模組、小規模子DAO 試點。
+
+2025 Q4（公測）：Snapshot 投票上線、oSnap/Safe 金庫跑通、EAS/Passport 接入、首批官方課程與多語本地化。
+
+2027（主網）：Layer2/AA 錢包降低費用；Retro-style 教育公共品獎勵池；移動端 App；防作弊與隱私增強。
+
+2028：與教育機構/政府合作，推動可驗證學習憑證與學分互認標準。
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🤝 參與封測的方法</h2>
+      <p class="text-gray-700 whitespace-pre-line">
+       以 Email/社群登入生成嵌入式錢包並鑄造 SBT 圖書證（免助記詞）
+
+前往「任務清單」挑任務（翻譯/測試/設計/回饋/上傳課）
+
+參與 Snapshot 投票（封測提案）、累積聲望，領取封測徽章
+      </p>
+    </section>
+
+  </main>
+
+  <!-- 載入其餘全域腳本，保持順序以確保功能正常 -->
+  <script src="JS/firebase.js"></script>
+  <script src="JS/ui.js"></script>
+  <!-- 如需其他自訂腳本請於此加入 -->
+  <script>
+    // 初始化 UI 函式（若存在於 ui.js 中）
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.initUI === 'function') {
+        window.initUI()
+      }
+    })
+  </script>
+</body>
+</html>

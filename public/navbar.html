@@ -1,0 +1,57 @@
+
+ <!-- 頁面開始 -->
+<body id="bodyRoot">
+
+  <!-- ⬆️ 整頁根容器，Tailwind 會對它設定背景、字體等 -->
+
+  <!-- 🔷 導覽列區塊 -->
+  <header id="mainHeader">
+
+    <!-- 🔹 Logo 與網站標題 -->
+    <div id="logoContainer">
+      <a id="logoTitle" href="index.html">阿卡西圖書館</a>
+      <span id="logoSubtitle">Akashic Library</span>
+    </div>
+
+    <!-- 🔹 主選單列表 -->
+    <nav>
+      <ul id="navList">
+        <li><a id="missionsLink" href="missions.html" aria-label="封測任務清單">治理活動</a></li>
+    <li><a id="courseLink" href="course.html">課程</a></li>
+        <li><a id="whitepaperLink" href="whitepaper.html">白皮書</a></li>
+      </ul>
+    </nav>
+
+  <!-- 🔹 用戶操作區（登入／顯示暱稱／個人頁面） -->
+<div id="wallet-section" class="flex items-center gap-3">
+      
+     <!-- 錢包登入按鈕（未登入才顯示；登入後可由 JS 隱藏） -->
+  <button
+    id="connectWalletButton"
+    data-wallet="connect"
+    aria-label="錢包登入"
+    class="btn btn-primary"
+  >錢包登入</button>
+
+<!-- 導覽列顯示登入後的使用者暱稱，並可點擊跳轉個人頁面 -->
+  <!-- 使用者暱稱（登入後顯示，可點進個人頁） -->
+  <a
+    id="userNickname"
+    href="profile.html"
+    class="hidden inline-block cursor-pointer text-blue-600 hover:underline"
+  ></a>
+
+
+ <!-- 唯一的「點數角標」節點：與 JS 一致，供 navbar.js／points.js 讀寫 -->
+  <span
+    id="pointsBadge"
+    data-points-badge
+    aria-label="我的點數"
+    class="ml-2 inline-flex items-center justify-center min-w-8 h-6 px-2 rounded-full bg-amber-400 text-black text-sm font-semibold select-none"
+  >0</span>
+</div>
+
+
+  </header>
+
+</body>

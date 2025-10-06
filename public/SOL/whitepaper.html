@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  
+  <!-- 建議：所有頁面 <head> 最前面都加這行 -->
+<script src="JS/config.js"></script>
+  <meta charset="UTF-8">
+  <title>阿卡西圖書館白皮書</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="akc-auth" content="open"> 
+    <script src="JS/auth-control.js"></script>
+
+    <!-- ✅ 1. 引入 Firebase 所需 CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+
+</head>
+
+
+<body class="bg-white text-gray-800 font-sans leading-relaxed">
+
+      <!-- ✅ 放置導覽列的占位元素 -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="max-w-3xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-6 text-center">📖 阿卡西圖書館｜白皮書（MVP）</h1>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">📌 阿卡西圖書館是什麼？</h2>
+      <p class="text-gray-700 whitespace-pre-line">打造一個人人皆可參與的去中心化學習平台，促進知識共享與真實貢獻價值的回饋機制。</p>
+    </section>
+    
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🌍 願景與使命</h2>
+      <p class="text-gray-700 whitespace-pre-line">平台將使用 NFT 作為圖書證，設計 AKC 行為挖礦機制，支援智慧聊天室與 DAO 治理系統。</p>
+    </section>
+    
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🧠 核心功能設計</h2>
+      <p class="text-gray-700 whitespace-pre-line">核心合約將區分為不可變與可升級治理邏輯，確保安全又具彈性。
+路線圖（2025–2027）：</p>
+    </section>
+    
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🎓 協作者與分潤機制</h2>
+      <p class="text-gray-700 whitespace-pre-line">2025：測試上線、內測與社群建立 → 2026：主網部署、DAO 啟動 → 2027：推向教育機構與政府合作。
+包含 AI 防作弊、資安審計、App 同步與資產保護設計。</p>
+    </section>
+    
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🔐 NFT 與著作權治理</h2>
+      <p class="text-gray-700 whitespace-pre-line">任何學習者與貢獻者皆可參與、共享並治理此去中心化平台。</p>
+    </section>
+    
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2 text-blue-700">🚀 路線圖與未來展望</h2>
+      <p class="text-gray-700 whitespace-pre-line"></p>
+    </section>
+    
+  </main>
+   <script src="JS/firebase.js"></script>
+             
+             <!-- 🔗 導覽列載入器 -->
+<script src="JS/navbar-loader.js"></script>
+
+
+<script src="JS/init-page.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="JS/wallet.js"></script>
+
+    <script src="JS/main.js"></script>
+    <script src="JS/ui.js"></script>
+
+     <script src="JS/ui.js"></script>
+
+<!-- ✅ 頁面級覆寫：連接成功後導向個人頁 -->
+<script>
+  (function () {
+    // 避免重複安裝
+    if (window.__AKC_PROFILE_REDIRECT_INSTALLED__) return;
+    window.__AKC_PROFILE_REDIRECT_INSTALLED__ = true;
+
+    function goProfile(addr) {
+      if (!addr) return;
+      // 若已在個人頁就不重導
+      if (location.pathname.endsWith('profile.html')) return;
+      location.href = `profile.html?uid=${addr}`;
+    }
+
+    function onConnected(payload) {
+      const addr = payload?.address || sessionStorage.getItem('walletAddress');
+      goProfile(addr);
+    }
+
+    // 1) 監聽事件匯流 bus（優先）
+    if (window.AKC?.bus?.on) {
+      window.AKC.bus.on('wallet:connected', onConnected);
+    } else {
+      // 2) 後備：原生 CustomEvent（若有）
+      document.addEventListener('AKC:wallet:connected', (e) => onConnected(e?.detail));
+    }
+
+  })();
+  </script>
+
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    window.initUI();
+  });
+</script>
+
+<script>
+  console.log("✅ 測試 localStorage 是否存在:", localStorage.getItem("walletAddress"));
+</script>
+</body>
+</html>
