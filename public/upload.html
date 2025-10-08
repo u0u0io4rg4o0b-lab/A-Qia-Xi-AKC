@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta name="akc-auth" content="strict" />
+
+             <!-- 建議：所有頁面 <head> 最前面都加這行 -->
+<script src="JS/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>上傳課程｜阿卡西圖書館</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase compat 套件放在 head，確保初始化順序 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+
+  <!-- 初始化你的 firebase.js（注意：改用相對路徑） -->
+  <script src="JS/firebase.js"></script>
+
+<script>
+  // 這頁禁止任何「登入後自動導向」
+  window.__akcMaybeRedirectAfterLogin = function () {};
+ 
+</script>
+
+
+</head>
+
+<body>
+
+      <!-- ✅ 放置導覽列的占位元素 -->
+  <div id="navbar-placeholder"></div>
+
+<!-- 我的課程清單（Studio 入口）｜插入於 L73 之後 -->
+<div class="container mb-4">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="text-lg font-semibold">我的課程</h2>
+    <button type="button" id="btnCreateCourse"
+     onclick="createDraftCourse()"
+         class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50">
+      ＋ 新增課程
+    </button>
+
+
+
+ 
+  </div>
+  <div id="myCoursesPanel"></div>
+</div>
+
+
+   <div class="container" id="studioEditor" style="max-width: 1100px;">
+
+     <h1>✍️ 上傳你的課程</h1>
+
+<!-- Studio 面板切換 -->
+<nav id="studioTabs" class="mb-4 flex gap-2">
+  <button type="button" id="tabUpload"     class="px-3 py-1.5 rounded-lg border border-gray-300 bg-gray-50">上傳編輯</button>
+  <button type="button" id="tabCurriculum" class="px-3 py-1.5 rounded-lg border border-gray-300">課綱編輯</button>
+  <button type="button" id="tabMyList"     class="px-3 py-1.5 rounded-lg border border-gray-300">課程清單</button>
+</nav>
+
+
+     <!-- 兩欄：左輸入／右預覽（md 以上並排） -->
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- 左欄：Studio 三面板（上傳 / 課綱 / 清單） -->
+       <!-- panelUpload：整個上傳表單 -->
+
+<section id="panelCurriculum" class="hidden order-2 md:order-1">
+
+  <!-- ↓原本 curriculumEditor 的內容原封不動貼在這裡 ↓ -->
+  <section id="curriculumEditor" class="mt-6 p-4 border rounded-xl">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-medium">📑 課綱編輯</h3>
+      <div class="space-x-2">
+        <button type="button" id="btnAddVideoLesson"
+          class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50">＋ 影片單元</button>
+        <button type="button" id="btnAddArticleLesson"
+          class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50">＋ 文章單元</button>
+      </div>
+    </div>
+    <ol id="lessonList" class="text-sm text-gray-700 list-decimal pl-5">
+      <li class="text-gray-400">尚未新增任何單元</li>
+    </ol>
+  </section>
+</section>
+
+
+      
+      <section id="panelUpload" class="order-2 md:order-1">
+  <form id="uploadForm">
+<label>課程標題</label>
+      <input type="text" id="title" required />
+
+      <label>課程分類</label>
+      <select id="category" required>
+        <option value="blockchain">區塊鏈｜錢包｜NFT｜治理</option>
+        <option value="security">資訊安全｜防駭</option>
+        <option value="health">健康｜自我覺察</option>
+        <option value="spiritual">身心靈｜宇宙法則</option>
+      </select>
+
+      <label>課程形式</label>
+      <select id="type" required>
+        <option value="video">🎬 影片課程</option>
+        <option value="article">📝 文章｜圖文教學</option>
+        <option value="consult">👥 一對一教學 / 諮詢</option>
+      </select>
+
+      <label>課程簡介</label>
+      <textarea rows="5" id="description" required></textarea>
+
+
+
+
+      <label>上傳影片 / 附件 / 圖片（可選）</label>
+      <input type="file" id="uploadFile" accept="video/*,image/*,.pdf" />
+
+
+<fieldset id="accessGroup" class="mt-4">
+  <legend>存取方式</legend>
+  <label class="mr-4"><input type="radio" name="access" value="free" checked> 免費公開</label>
+  <label><input type="radio" name="access" value="token"> 以 AKC 解鎖</label>
+</fieldset>
+
+<div id="priceRow" class="mt-2 hidden">
+  <label>解鎖價格（AKC）</label>
+  <input type="number" id="priceAKC" min="1" step="1" placeholder="例如：100" />
+  <div class="note">＊目前先做前端記錄（Firestore）。後續升級為 ERC-20 轉帳並寫回交易 txHash。</div>
+</div>
+
+
+      <div class="note">如果是一對一教學，請在簡介中說明你的可預約時間、方式（如 Zoom, Discord）與聯絡方式。</div>
+
+      <!-- ✅ 改為 submit 觸發 -->
+      <button type="submit" id="uploadButton">✅ 確認上傳</button>
+      </form>
+</section>
+
+
+   
+
+       <!-- panelMyList：Studio 內的「我的課程」清單容器 -->
+       <section id="panelMyList" class="hidden order-2 md:order-1">
+         <div id="myCoursesPanelStudio"></div>
+       </section>
+
+       <!-- 右欄：預覽側欄（Sticky） -->
+       <aside id="previewPanel" class="order-1 md:order-2 md:sticky md:top-4 space-y-4">
+
+         <!-- 原預覽卡：直接搬進來 -->
+         <div id="previewCard" style="border:1px solid #e5e7eb; border-radius:12px; padding:16px;">
+          <h2 style="margin:0 0 8px 0;">🪞 預覽</h2>
+           <div><strong>標題：</strong><span id="pvTitle">（尚未輸入）</span></div>
+           <div><strong>分類：</strong><span id="pvCategory">（尚未選擇）</span></div>
+          <div><strong>形式：</strong><span id="pvType">（尚未選擇）</span></div>
+           <div><strong>存取：</strong><span id="pvAccess">免費</span></div>
+           <div id="pvPriceRow" class="note hidden">價格：<span id="pvPrice">—</span> AKC</div>
+           <div class="note">作者：<span id="pvAuthor">（將以你的暱稱顯示）</span></div>
+           <video id="pvVideo" controls class="hidden" style="width:100%; margin-top:8px;" preload="metadata"></video>
+         </div>
+
+         <!-- 新增：課綱概覽骨架（之後 S2 會接 lessons 子集合） -->
+         <div id="outlinePreview" class="p-4 border rounded-xl">
+           <h3 class="font-medium mb-2">📑 課綱概覽</h3>
+           <div class="text-sm text-gray-500">
+             目前：<span id="pvSectionIndex">第 0 章</span> · <span id="pvLessonIndex">第 0 單元</span>
+           </div>
+           <ul id="pvOutlineList" class="mt-2 list-disc pl-5 text-sm text-gray-700">
+             <li class="text-gray-400">尚未建立課綱</li>
+           </ul>
+         </div>
+
+         <!-- 新增：助教 / 常見 QA（封測占位，未連線） -->
+         <div id="assistantPanel" class="p-4 border rounded-xl">
+           <h3 class="font-medium mb-2">🎧 助教 / 常見 QA</h3>
+           <p class="text-sm text-gray-500">封測占位：後續將接 AI 助教與留言板。</p>
+         </div>
+
+       </aside>
+
+     </div><!-- /grid -->
+   </div><!-- /#studioEditor -->
+
+
+
+    <!-- 按順序載入導航列、樣式、初始化與錢包邏輯 -->
+    <script src="JS/navbar-loader.js"></script>
+    <!-- Navbar 樣式腳本，載入完成自動套用樣式 -->
+
+    <script src="JS/init-page.js"></script>
+
+  <script src="JS/siwe.js?v=20250911b" defer></script>
+   <script src="JS/wallet.js" defer></script>
+   <script src="JS/points.js" defer></script>
+   <div id="badgeTray" class="p-3 border rounded-xl"></div>
+
+<script src="JS/badges.js" defer></script>
+    <!-- 守門/快取清理需先啟動 -->
+    <script src="JS/auth-control.js"></script>
+    <!-- 置於其他頁面程式後，避免副作用 -->
+    <script src="JS/upload.js"></script>
+    <script src="JS/main.js"></script>
+   <script src="JS/ui.js" defer></script>
+
+
+<script>
+  window.addEventListener('DOMContentLoaded', async () => {
+    await loadNavbar();
+    if (typeof initNavbar === 'function') initNavbar();
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    window.initUI();
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const priceRow = document.getElementById('priceRow');
+    const price = document.getElementById('priceAKC');
+    function sync() {
+      const val = document.querySelector('input[name="access"]:checked')?.value || 'free';
+      const isToken = val === 'token';
+      priceRow.classList.toggle('hidden', !isToken);
+      if (isToken) {
+        price?.setAttribute('required', 'required');
+      } else {
+        price?.removeAttribute('required');
+        if (price) price.value = '';
+      }
+    }
+    document.querySelectorAll('input[name="access"]').forEach(r => r.addEventListener('change', sync));
+    sync();
+  });
+</script>
+
+
+<script>
+  window.onload = function () {
+    
+    UI.bindGlobalEvents();         // 綁定 UI 上所有需要互動的元素（如登出）
+    window.bindWalletButtons?.();  // ✅ 呼叫錢包按鈕綁定（安全寫法）
+  };
+</script>
+
+</body>
+
+
+</html>

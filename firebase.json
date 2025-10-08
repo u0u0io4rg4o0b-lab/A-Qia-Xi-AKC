@@ -1,0 +1,79 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "location": "asia-east1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions"
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+  { "source": "/JS/**", "headers": [ { "key": "Cache-Control", "value": "no-store" } ] },
+  { "source": "**/*.html", "headers": [ { "key": "Cache-Control", "value": "no-store" } ] }
+],
+
+    
+    "rewrites": [
+      {
+        "source": "/api/points/award",
+        "function": {
+          "functionId": "awardPoints",
+          "region": "asia-east1"
+        }
+      },
+      {
+        "source": "/api/siwe/nonce",
+        "function": {
+          "functionId": "siweNonce",
+          "region": "asia-east1"
+        }
+      },
+      {
+        "source": "/api/siwe/verify",
+        "function": {
+          "functionId": "siweVerify",
+          "region": "asia-east1"
+        }
+      },
+      {
+        "source": "/api/siwe/logout",
+        "function": {
+          "functionId": "siweLogout",
+          "region": "asia-east1"
+        }
+      },
+      {
+  "source": "/api/points/hydrate",
+  "function": { "functionId": "hydratePoints", "region": "asia-east1" }
+}
+  
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": { "port": 8085 },
+   "hosting":   { "port": 5005 },
+    
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4001
+    },
+    "singleProjectMode": true
+  }
+}

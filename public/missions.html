@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!--
+  任務頁面 - 阿卡西圖書館封測任務列表
+
+  本檔案定義了封閉測試階段的任務頁面。頁面使用阿卡西圖書館既有的
+  全域配置與導航列架構，並遵循長期記憶中的使用者體驗與安全規範。
+  透過提供三類型（教育者、協作者、學習者）的任務，鼓勵用戶參與
+  內容創作、系統測試與社群共識的建立，藉此推動經濟循環。
+-->
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 指定該頁面為開放驗證型別，未登入者仍可瀏覽內容 -->
+    <meta name="akc-auth" content="open" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>封測任務列表｜阿卡西圖書館</title>
+    <!-- Tailwind CSS（CDN，封測用最快修復） -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 須先載入全域設定，內含合約位址與鏈資訊 -->
+    <script src="JS/config.js"></script>
+    <!-- 載入 ethers 及 firebase 相依套件，由 config.js 決定版本 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+    <!-- 初始化 Firebase 與其他全域工具 -->
+    <script src="JS/firebase.js"></script>
+    <!-- 在 head 中不載入其他 JS，避免影響載入順序 -->
+  </head>
+  <body class="bg-gray-50 min-h-screen text-gray-900">
+    <!-- 導航列的佔位元素，實際內容由 navbar-loader.js 動態填充 -->
+    <div id="navbar-placeholder"></div>
+    <!-- 按順序載入導航列、頁面初始化與錢包相關邏輯 -->
+    <script src="JS/navbar-loader.js"></script>
+   
+    <script src="JS/init-page.js"></script>
+ 
+     <script src="JS/siwe.js?v=20250911b" defer></script>
+<script src="JS/wallet.js" defer></script>
+<script src="JS/points.js" defer></script>
+    <!-- 守門/快取清理需「先」啟動 -->
+    <script src="JS/auth-control.js"></script>
+    <!-- 主內容區 -->
+    <main id="missionPage" class="p-4 max-w-5xl mx-auto">
+      <section class="mb-8">
+        <h1 class="text-3xl font-bold mb-3">封測任務清單</h1>
+        <p class="text-gray-700">
+          歡迎加入阿卡西圖書館的封閉測試！為了共創去中心化的教育生態，我們設計了一系列任務，期待您
+          透過貢獻與回饋，一同推動教育者、協作者、學習者的三方循環。完成任務可獲得社區積分、早期挖礦資格
+          等回饋，詳細資訊請參考各項任務描述。
+        </p>
+      </section>
+      <!--  任務列表容器：由 missions.js 動態填充卡片  -->
+      <section id="missionsList" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></section>
+    </main>
+    <!-- 頁尾僅載入本頁需要的最小集合（避免重複與副作用） -->
+    <script src="JS/ui.js"></script>
+    <script src="JS/missions.js"></script>
+
+  </body>
+</html>

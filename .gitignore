@@ -1,0 +1,51 @@
+# --- Dependencies & package locks ---
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+bower_components
+
+# --- Environment / local secrets ---
+.env
+.env.*
+!.env.example
+.vscode/
+.firebase/
+
+# --- Builds / compiled outputs ---
+dist/
+build/
+build/Release
+# 若有 TypeScript 轉譯到 functions/lib，請取消下一行註解
+ functions/lib/
+
+# --- Logs & caches ---
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+firebase-debug.log*
+firebase-debug.*.log*
+.npm
+.eslintcache
+.node_repl_history
+.yarn-integrity
+*.tgz
+
+# --- Test/coverage/temp ---
+coverage
+.nyc_output
+lib-cov
+pids
+*.pid
+*.seed
+*.pid.lock
+.grunt
+.lock-wscript
+
+# --- Firebase config（二選一；預設追蹤 .firebaserc） ---
+# A) 團隊共用同一 Firebase 專案 → **追蹤** .firebaserc（預設：不忽略）
+# .firebaserc
+# B) 每人各自 Firebase 專案 → **忽略** .firebaserc
+#（要改成 B，請把上一行的註解拿掉）
+# .firebaserc

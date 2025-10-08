@@ -1,0 +1,20 @@
+name: tiny-ci-patrol
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gitleaks-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 用 docker 跑 gitleaks，不吃你的 repo 環境
+      - name: Run gitleaks (no-git, scan working tree)
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/repo \
+            zricethezav/gitleaks:latest \
+            detect --no-git --source /repo --exit-code 1

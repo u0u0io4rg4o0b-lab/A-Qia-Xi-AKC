@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta name="akc-auth" content="strict" />
+
+           <!-- 建議：所有頁面 <head> 最前面都加這行 -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>阿卡西圖書館｜個人頁面</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+<!-- ✅ 1. 引入 Firebase 所需 CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+
+
+
+<!-- ✅ 2. 引入你的 firebase.js 初始化檔案 -->
+<script src="JS/firebase.js"></script>
+
+<body>
+
+  <!-- ✅ 放置導覽列的占位元素 -->
+  <div id="navbar-placeholder"></div>
+
+    <!--
+      使用 Tailwind 將原本的 user‑info 區塊轉成卡片樣式：
+      - p‑6：內距留白
+      - bg‑white：白色背景
+      - border 和 rounded：邊框與圓角
+      - shadow：投影增加層次感
+      - space‑y‑2：子元素垂直間距
+      - max‑w‑lg mx‑auto：限制寬度並置中
+    -->
+    <div class="user-info p-6 bg-white border border-gray-200 rounded-lg shadow-md space-y-2 max-w-lg mx-auto">
+      <!-- 暱稱顯示與編輯按鈕，使用 flex 排版並置中，增添間距 -->
+      <div id="nickname-wrapper" class="flex items-center gap-2">
+        <h2 id="nicknameDisplay">載入中...</h2>
+        <button id="editNicknameBtn" class="icon ml-2 text-xl cursor-pointer text-blue-500 hover:text-blue-700 focus:outline-none">✏️</button>
+      </div>
+      <!-- 編輯暱稱表單，初始隱藏，當顯示時使用 flex 排列元素並加上間距 -->
+      <form id="nicknameForm" class="hidden flex items-center gap-2 mt-2">
+        <input type="text" id="nicknameInput" placeholder="輸入新暱稱" required class="border border-gray-300 rounded px-2 py-1 flex-1" />
+        <button type="submit" class="px-3 py-1 bg-blue-500 text-white rounded">更新</button>
+      </form>
+      <!-- 狀態提示文字，使用較小字級與顏色標示成功或失敗 -->
+      <p id="updateStatus" class="status text-sm mt-2"></p>
+      <p><strong>UID：</strong><span id="uidDisplay">載入中...</span></p>
+      <p><strong>錢包：</strong><span id="walletDisplay">載入中...</span></p>
+    </div>
+
+
+<!-- ✅ 個人操作列：課程後台 / 任務清單 -->
+<div class="max-w-lg mx-auto mt-4 flex gap-3">
+  <a id="toStudio"
+     href="upload.html"
+     class="px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow">
+    前往課程後台
+  </a>
+  <button id="openMissions"
+          class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+    任務清單
+  </button>
+</div>
+
+
+  <!-- ✅ 任務清單模組 -->
+  <!-- 今日任務面板：透過 Tailwind 製作卡片式區塊 -->
+  <section class="mission-panel p-4 bg-white border border-gray-200 rounded-lg shadow-md my-6 max-w-lg mx-auto">
+    <h3 class="text-lg font-semibold mb-2">🎯 今日任務</h3>
+   <ul id="missionList" class="list-disc pl-5 space-y-1">
+  <li>（載入任務中…）</li>
+</ul>
+  </section>
+
+  <!-- ✅ 學習統計模組 -->
+  <!-- 學習統計區塊：使用網格排版顯示多個統計卡片 -->
+  <section class="stats grid grid-cols-2 md:grid-cols-4 gap-4 my-6 max-w-3xl mx-auto">
+     <div class="stat p-4 bg-white rounded-xl shadow-md text-center space-y-1">
+    <h3 class="text-base font-semibold">我的 Points</h3>
+    <p id="pointsTotalDisplay" class="text-2xl font-semibold tracking-wide">0</p>
+  </div>
+    <div class="stat p-4 bg-white rounded-xl shadow-md text-center space-y-1">
+      <h3 class="text-base font-semibold">已完成課程</h3>
+      <p id="completedCourses" class="text-xl font-bold">0</p>
+    </div>
+    <div class="stat p-4 bg-white rounded-xl shadow-md text-center space-y-1">
+      <h3 class="text-base font-semibold">創建課程</h3>
+      <p id="createdCourses" class="text-xl font-bold">0</p>
+    </div>
+    <div class="stat p-4 bg-white rounded-xl shadow-md text-center space-y-1">
+      <h3 class="text-base font-semibold">累積上課時數</h3>
+      <p id="studyHours" class="text-xl font-bold">0 hr</p>
+    </div>
+    <div class="stat p-4 bg-white rounded-xl shadow-md text-center space-y-1">
+      <h3 class="text-base font-semibold">獲得憑證</h3>
+      <p id="certificates" class="text-xl font-bold">0</p>
+    </div>
+  </section>
+
+<!-- 🏅 我的徽章（先佔位，之後由 profile.js 亮燈） -->
+<section id="achievements" class="max-w-3xl mx-auto my-8">
+  <h2 class="text-base font-semibold mb-2">我的徽章</h2>
+
+<section id="pointsHistory" class="max-w-3xl mx-auto my-8">
+  <h2 class="text-base font-semibold mb-2">我的加分歷史</h2>
+  <div id="pointsHistoryList" class="bg-white rounded-xl shadow p-4 text-sm">
+    （載入中…）
+  </div>
+</section>
+
+  <ul id="badgeList" class="grid grid-cols-3 gap-3">
+    <li id="badgeFirstCourse"
+        data-badge="course:create"
+        class="p-4 rounded-xl bg-white shadow ring-1 ring-slate-100 text-center">
+      <div class="text-2xl">🏁</div>
+      <div class="text-sm mt-1">完成第一門課</div>
+    </li>
+    <li id="badgeFirstArticle"
+        data-badge="lesson:article:create"
+        class="p-4 rounded-xl bg-white shadow ring-1 ring-slate-100 text-center">
+      <div class="text-2xl">✍️</div>
+      <div class="text-sm mt-1">首篇文章</div>
+    </li>
+    <li id="badgeFirstVideo"
+        data-badge="lesson:video:ready"
+        class="p-4 rounded-xl bg-white shadow ring-1 ring-slate-100 text-center">
+      <div class="text-2xl">🎬</div>
+      <div class="text-sm mt-1">首支影片</div>
+    </li>
+  </ul>
+</section>
+
+
+
+
+  <!-- ✅ JS 邏輯綁定（含暱稱修改 + Firestore 載入） -->
+  <script>
+    document.getElementById("editNicknameBtn").addEventListener("click", () => {
+      document.getElementById("nickname-wrapper").style.display = "none";
+      document.getElementById("nicknameForm").style.display = "flex";
+    });
+
+  </script>
+
+         <script src="JS/auth-control.js"></script> <!-- 要先執行，負責清除快取 -->
+             <!-- 🔗 導覽列載入器 -->
+<script src="JS/navbar-loader.js"></script>
+
+<script src="JS/init-page.js"></script>
+
+ <script src="JS/siwe.js?v=20250911b" defer></script>
+<script src="JS/wallet.js" defer></script>
+
+    <script src="JS/checkAccess.js"></script>
+    <script src="JS/points.js" defer></script>
+  <!-- <script src="JS/badges.js"></script>   -->
+    <script src="JS/config.js"></script>
+    <script src="JS/profile.js"></script>
+    <script src="JS/main.js"></script>
+    <script src="JS/ui.js"></script>
+
+<!-- ✅ Drawer：任務清單（左側滑出） -->
+<div id="drawerOverlay" class="hidden fixed inset-0 bg-black/40 z-40"></div>
+<aside id="missionDrawer"
+       class="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-50 shadow-2xl
+              transform -translate-x-full transition-transform duration-300">
+  <div class="p-4 border-b flex items-center justify-between">
+    <h3 class="text-lg font-semibold">任務清單</h3>
+    <button id="closeMissions" class="text-gray-500 hover:text-gray-800 text-xl">✕</button>
+  </div>
+  <div class="p-4">
+    <ul id="missionListDrawer" class="list-disc pl-5 space-y-1">
+      <li>（載入任務中…）</li>
+    </ul>
+    <div class="mt-4">
+      <a href="missions.html" class="text-sm text-blue-600 hover:underline">檢視全部任務 →</a>
+    </div>
+  </div>
+</aside>
+
+
+<script>
+  window.addEventListener('DOMContentLoaded', async () => {
+    // ① 先載入 Navbar（由 navbar-loader.js 提供）
+    if (typeof loadNavbar === 'function') {
+      await loadNavbar();
+      if (typeof initNavbar === 'function') initNavbar();
+    }
+    // ② 再啟動全域 UI
+    if (window.initUI) window.initUI();
+  });
+</script>
+<script>
+  // Drawer 開關（最小落地版）
+  (function () {
+    const openBtn = document.getElementById('openMissions');
+    const drawer  = document.getElementById('missionDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const closeBtn= document.getElementById('closeMissions');
+    const copyList= () => {
+      const src = document.getElementById('missionList');
+      const dst = document.getElementById('missionListDrawer');
+      if (src && dst) dst.innerHTML = src.innerHTML; // 先複製現有任務
+    };
+    function openDrawer() {
+      copyList();
+      overlay?.classList.remove('hidden');
+      drawer?.classList.remove('-translate-x-full');
+    }
+    function closeDrawer() {
+      overlay?.classList.add('hidden');
+      drawer?.classList.add('-translate-x-full');
+    }
+    openBtn?.addEventListener('click', openDrawer);
+    closeBtn?.addEventListener('click', closeDrawer);
+    overlay?.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+  })();
+</script>
+
+<section id="nftStatus" class="p-4 bg-gray-800 rounded-xl mt-4">
+  <h2 class="text-xl font-bold text-white">🎫 NFT 狀態</h2>
+  <p id="nftStatusMessage" class="text-green-400 mt-2">正在檢查 NFT 持有狀態...</p>
+</section>
+<div id="mintAction" class="mt-2 hidden">
+  <a href="mint-pass.html" class="px-4 py-2 bg-yellow-400 text-black rounded-lg shadow hover:bg-yellow-300">
+    前往鑄造 NFT
+  </a>
+</div>
+<div id="myLibraryNFTs" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+</body>
+
+
+</html>

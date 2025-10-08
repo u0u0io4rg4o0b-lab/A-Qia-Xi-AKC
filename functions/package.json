@@ -1,0 +1,23 @@
+{
+  "name": "akc-functions",
+  "main": "lib/index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "watch": "tsc -w",
+"build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions,firestore,hosting",
+    "deploy": "npm run build && firebase deploy --only functions,hosting"
+
+  },
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "firebase-admin": "^11.11.1",
+    "firebase-functions": "^4.5.0",
+    "siwe": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <!-- 首先載入全域設定，包含鏈別、合約與 RPC_URL 參數 -->
+  <script src="JS/config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>課程中心｜阿卡西圖書館</title>
+  <!-- TailwindCSS 用於快速佈局與樣式 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 認證：此頁開放訪問，不需簽名也可瀏覽 -->
+  <meta name="akc-auth" content="open">
+  <!-- Firebase compat 套件 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+  <!-- 初始化 Firebase app 與 Firestore、Storage、Auth -->
+  <script src="JS/firebase.js"></script>
+  <!-- 存取檢查與 NFT 驗證工具函式 -->
+  <script src="JS/checkAccess.js"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- 導覽列佔位符，navbar-loader.js 會載入實際導覽 -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="px-4 py-8 max-w-5xl mx-auto">
+    <h1 class="text-3xl font-bold mb-2">📚 阿卡西圖書館｜課程中心</h1>
+    <p class="text-gray-600 mb-6">探索他人貢獻的知識，也可以貢獻自己的課程。</p>
+
+    <!-- 分享知識 CTA -->
+    <div class="text-center my-6">
+      <p class="mb-2">想分享你的知識嗎？</p>
+      <form id="uploadRedirectForm">
+        <button type="submit" class="cta-button bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-full shadow transition">✍️ 貢獻智慧</button>
+      </form>
+    </div>
+
+    <!-- 課程清單容器（cards 將由 course.js 動態插入） -->
+    <div id="courseList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <!-- 預留「載入更多」按鈕，由 JS 控制顯示與隱藏 -->
+    <div class="text-center">
+      <button id="loadMoreCourses" class="mt-4 px-4 py-2 text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition hidden">載入更多</button>
+    </div>
+  </main>
+
+  <!-- 導覽列載入器 -->
+  <script src="JS/navbar-loader.js"></script>
+  <!-- 初始化頁面設定（例如 dark mode、語言） -->
+  <script src="JS/init-page.js"></script>
+  <!-- ethers.js UMD 版本，用於與鏈互動 -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <!-- 錢包管理函式，含連接錢包、簽名等 -->
+  
+ <script src="JS/siwe.js?v=20250911b" defer></script>
+<script src="JS/wallet.js" defer></script>
+<script src="JS/points.js" defer></script>
+  <!-- 課程清單渲染程式，含分頁、NFT 驗證等邏輯 -->
+  <script src="JS/course.js"></script>
+  <!-- 其他共用程式 -->
+  <script src="JS/main.js"></script>
+  <script src="JS/ui.js"></script>
+  
+  <script>
+    // 初始化 UI 元件及事件綁定
+    window.addEventListener('DOMContentLoaded', () => {
+      window.initUI?.();
+    });
+    
+    window.onload = function () {
+      // 綁定登出等全局事件
+      UI.bindGlobalEvents?.();
+      // 綁定錢包按鈕事件
+      window.bindWalletButtons?.();
+    };
+  </script>
+</body>
+</html>
