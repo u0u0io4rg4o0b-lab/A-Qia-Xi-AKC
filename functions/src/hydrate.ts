@@ -34,14 +34,19 @@ export const hydratePoints = onRequest(async (req, res) => {
   if (req.method !== 'GET') { res.status(405).json({ ok:false, error:'method_not_allowed' }); return; }
 
   // 兩者擇一（容忍舊參數 uid）
-  const q = req.query as any;
+  type HydrateQuery = { address?: string; uid?: string };
+const q = req.query as Partial<HydrateQuery>;
+
   const address = String(q.address || q.uid || '').toLowerCase();
   if (!address) { res.status(400).json({ ok:false, error:'missing_address' }); return; }
 
   // 可選：若你希望 GET 也驗 cookie，可打開下列幾行
-  const cookies = parseCookies(req.headers.cookie as any);
-  try {
-    const sessionAddr = (JSON.parse(cookies['__session'] || '{}') as any).address?.toLowerCase() || '';
+type SessionCookie = { address?: string; nonce?: string };
+const cookies = parseCookies(req.headers.cookie);
+try {
+  const raw = cookies['__session'];
+  const sessionAddr =
+    raw ? (JSON.parse(raw) as SessionCookie).address?.toLowerCase() ?? '' : '';
     if (sessionAddr && sessionAddr !== address) {
       res.status(403).json({ ok:false, error:'address_mismatch' }); return;
     }

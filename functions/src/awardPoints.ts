@@ -68,7 +68,10 @@ function dayInTZ(d = new Date(), tz = TZ) {
   }).format(d);
 }
 
-let { address: _addr, uid: _uid, type, ref, amount, ts, key } = req.body || {};
+const body = req.body || {};
+const { address: _addr, uid: _uid, type, ts } = body;   // 不會重新指定 → const
+let   { ref, amount, key } = body;                      // 可能被更新 → 保留 let
+
 // 若為每日登入，後端主導 key/ref（防洗分、防時區不一）
 if (type === 'login:daily') {
   const day = dayInTZ();
@@ -91,9 +94,17 @@ const bad =
   !key || String(key).length > 64;
 if (bad) { res.status(400).json({ ok:false, error:'bad_payload' }); return; }
 
-const cookies = parseCookies(req.headers.cookie as any);
+type SessionCookie = { address?: string; nonce?: string };
+const cookies = parseCookies(req.headers.cookie);   // 解析器已支援 undefined，不必 any
 let sessionAddr = '';
-try { sessionAddr = (JSON.parse(cookies['__session'] || '{}') as any).address?.toLowerCase() || ''; } catch {}
+try {
+  const raw = cookies['__session'];
+  if (raw) {
+    const parsed = JSON.parse(raw) as SessionCookie;
+    sessionAddr = parsed.address?.toLowerCase() ?? '';
+  }
+} catch {}
+
 if (!sessionAddr) { res.status(401).json({ ok:false, error:'auth_required' }); return; }
 if (address !== sessionAddr) { res.status(403).json({ ok:false, error:'address_mismatch' }); return; }
 
@@ -128,10 +139,18 @@ tx.set(userDoc, {
       return { existed: false };
     });
 
-    if (result.existed === false) {
-      const uAfter = await userDoc.get();
-      (result as any).total = Number(uAfter.get('pointsTotal') || 0);
-    }
+    type TxResult = { existed: boolean; total?: number };
+// ↑ 檔案頂部或本段上方宣告一次（不要重複宣告）
+
+// 將 transaction 回傳統一視為 TxResult
+// const result: TxResult = await db.runTransaction(...)
+// （上面那段你在 transaction 建回傳物件時就用這個型別）
+
+if (result.existed === false) {
+  const uAfter = await userDoc.get();
+  result.total = Number(uAfter.get('pointsTotal') || 0);
+}
+
     const out = { ok: true, ...result }; res.json(out); return;
   } catch (e) {
     console.error(e);
