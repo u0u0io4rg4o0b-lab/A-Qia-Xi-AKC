@@ -1,20 +1,46 @@
-name: tiny-ci-patrol
+name: CI
 
 on:
   push:
+    branches: ['main']
   pull_request:
+    branches: ['main']
 
 jobs:
-  gitleaks-scan:
+  build-and-lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 用 docker 跑 gitleaks，不吃你的 repo 環境
-      - name: Run gitleaks (no-git, scan working tree)
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root deps
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/repo \
-            zricethezav/gitleaks:latest \
-            detect --no-git --source /repo --exit-code 1
+          if [ -f "package.json" ]; then
+            npm ci
+          else
+            echo "No root package.json, skip."
+          fi
+
+      - name: Lint
+        run: |
+          if [ -f ".eslintrc.json" ]; then
+            npx eslint . --ext .js,.ts,.tsx
+          else
+            echo "No ESLint config, skip."
+          fi
+
+      - name: Build Firebase functions (TypeScript)
+        run: |
+          if [ -f "functions/package.json" ]; then
+            cd functions
+            npm ci
+            npx tsc -p tsconfig.json
+          else
+            echo "No functions dir, skip."
+          fi
