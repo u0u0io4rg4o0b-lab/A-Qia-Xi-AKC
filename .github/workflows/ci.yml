@@ -1,14 +1,53 @@
-- name: Lint
-  run: |
-    if [ -f "eslint.config.mjs" ] || [ -f "eslint.config.js" ] || [ -f "eslint.config.cjs" ] \
-       || [ -f ".eslintrc.json" ] || [ -f ".eslintrc.js" ] || [ -f ".eslintrc.cjs" ] \
-       || [ -f ".eslintrc.yaml" ] || [ -f ".eslintrc.yml" ]; then
-      # 扁平設定時，明確帶 --config 最穩
-      if [ -f "eslint.config.mjs" ]; then
-        npx eslint . --ext .js,.ts,.tsx --config eslint.config.mjs
-      else
-        npx eslint . --ext .js,.ts,.tsx
-      fi
-    else
-      echo "No ESLint config found; skipping lint."
-    fi
+name: CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root deps
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci
+          else
+            echo "No root package.json, skip."
+          fi
+
+      - name: Lint (flat config or eslintrc)
+        run: |
+          if [ -f "eslint.config.mjs" ] || [ -f "eslint.config.js" ] || [ -f "eslint.config.cjs" ] \
+             || [ -f ".eslintrc.json" ] || [ -f ".eslintrc.js" ] || [ -f ".eslintrc.cjs" ] \
+             || [ -f ".eslintrc.yaml" ] || [ -f ".eslintrc.yml" ]; then
+            if [ -f "eslint.config.mjs" ]; then
+              npx eslint . --ext .js,.ts,.tsx --config eslint.config.mjs
+            else
+              npx eslint . --ext .js,.ts,.tsx
+            fi
+          else
+            echo "No ESLint config found; skipping lint."
+          fi
+
+      - name: Build Firebase functions (TypeScript)
+        run: |
+          if [ -f "functions/package.json" ]; then
+            cd functions
+            npm ci
+            npx tsc -p tsconfig.json
+          else
+            echo "No functions dir, skip."
+          fi
