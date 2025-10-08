@@ -49,3 +49,4 @@ pids
 # B) 每人各自 Firebase 專案 → **忽略** .firebaserc
 #（要改成 B，請把上一行的註解拿掉）
 # .firebaserc
+gitleaks-report.json
